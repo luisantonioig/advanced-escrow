@@ -1,0 +1,38 @@
+{
+  "name": "basic-aiken-mesh-escrow",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "aiken:check": "aiken check",
+    "aiken:build": "aiken build",
+    "build": "npm run aiken:build --silent && npm run build:ts --silent",
+    "build:ts": "tsc",
+    "check": "npm run aiken:check --silent && npm run typecheck --silent",
+    "cli": "npm run build --silent && node --enable-source-maps dist/onchain.js",
+    "typecheck": "tsc --noEmit",
+    "wallet:generate": "npm run cli -- generate-wallet",
+    "wallet:addresses": "npm run cli -- addresses",
+    "wallet:balance": "npm run cli -- balance",
+    "wallet:collateral:buyer": "npm run cli -- create-collateral buyer",
+    "wallet:collateral:seller": "npm run cli -- create-collateral seller",
+    "wallet:collateral:arbiter": "npm run cli -- create-collateral arbiter",
+    "escrow:address": "npm run cli -- script-address",
+    "escrow:lock": "npm run cli -- lock",
+    "escrow:release": "npm run cli -- release",
+    "escrow:refund": "npm run cli -- refund",
+    "escrow:resolve-buyer": "npm run cli -- resolve-buyer",
+    "escrow:resolve-seller": "npm run cli -- resolve-seller"
+  },
+  "dependencies": {
+    "@meshsdk/core": "1.9.0-beta.102",
+    "@meshsdk/wallet": "1.9.0-beta.102",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
