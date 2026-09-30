@@ -2,8 +2,12 @@
 artifacts/
 # Aiken's project working directory
 build/
-# Aiken's default documentation export
-docs/
+
+# Node.js dependencies and compiled output
 node_modules/
 dist/
+
+# Local environment files
 .env
+.env.*
+!.env.example

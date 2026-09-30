@@ -13,7 +13,7 @@
     "build:ts": "tsc",
     "check": "npm run aiken:check --silent && npm run typecheck --silent",
     "test": "npm run test:integration",
-    "test:integration": "tsx --test tests/integration/**/*.test.ts",
+    "test:integration": "tsx --test tests/integration/*.test.ts",
     "cli": "npm run build --silent && node --enable-source-maps dist/onchain.js",
     "typecheck": "tsc --noEmit -p tsconfig.test.json",
     "wallet:generate": "npm run cli -- generate-wallet",
