@@ -4,9 +4,11 @@ import {
   type Data,
   type IFetcher,
   MeshTxBuilder,
+  pubKeyAddress,
   resolveDataHash,
   resolvePaymentKeyHash,
   resolvePlutusScriptAddress,
+  serializeAddressObj,
   type UTxO,
 } from "@meshsdk/core";
 import blueprint from "../plutus.json" with { type: "json" };
@@ -19,6 +21,7 @@ type EscrowParties = {
   buyer: string;
   seller: string;
   arbiter: string;
+  escrowId: string;
 };
 
 export type EscrowWallet = {
@@ -35,8 +38,6 @@ type RedeemEscrowArgs = {
   provider: IFetcher;
   parties: EscrowParties;
   action: EscrowAction;
-  buyerAddress: string;
-  sellerAddress: string;
   networkId?: NetworkId;
 };
 
@@ -50,7 +51,12 @@ const redeemerIndex: Record<EscrowAction, number> = {
 export function escrowDatum(parties: EscrowParties): Data {
   return {
     alternative: 0,
-    fields: [parties.buyer, parties.seller, parties.arbiter],
+    fields: [
+      parties.buyer,
+      parties.seller,
+      parties.arbiter,
+      Buffer.from(parties.escrowId, "utf8").toString("hex"),
+    ],
   };
 }
 
@@ -130,6 +136,7 @@ export async function redeemEscrow(args: RedeemEscrowArgs) {
     .txInRedeemerValue(redeemer)
     .txInScript(script.code)
     .txOut(payoutAddress, lockedUtxo.output.amount)
+    .txOutInlineDatumValue(outputReferenceData(lockedUtxo.input))
     .requiredSignerHash(requiredSigner)
     .txInCollateral(
       collateral[0].input.txHash,
@@ -152,13 +159,21 @@ export function blockfrostProvider(projectId: string) {
 async function findEscrowUtxo(provider: IFetcher, address: string, datum: Data) {
   const dataHash = resolveDataHash(datum);
   const utxos = await provider.fetchAddressUTxOs(address, "lovelace");
-  const match = utxos.find((utxo: UTxO) => utxo.output.dataHash === dataHash);
+  const matches = utxos.filter(
+    (utxo: UTxO) => utxo.output.dataHash === dataHash,
+  );
 
-  if (!match) {
+  if (matches.length === 0) {
     throw new Error(`No escrow UTxO found at ${address} for datum ${dataHash}.`);
   }
 
-  return match;
+  if (matches.length > 1) {
+    throw new Error(
+      `Multiple escrow UTxOs found at ${address} for datum ${dataHash}.`,
+    );
+  }
+
+  return matches[0];
 }
 
 function signerForAction(action: EscrowAction, parties: EscrowParties) {
@@ -174,12 +189,26 @@ function signerForAction(action: EscrowAction, parties: EscrowParties) {
 }
 
 function payoutForAction(args: RedeemEscrowArgs) {
-  switch (args.action) {
-    case "Release":
-    case "ResolveSeller":
-      return args.sellerAddress;
-    case "Refund":
-    case "ResolveBuyer":
-      return args.buyerAddress;
-  }
+  const paymentKeyHash = (() => {
+    switch (args.action) {
+      case "Release":
+      case "ResolveSeller":
+        return args.parties.seller;
+      case "Refund":
+      case "ResolveBuyer":
+        return args.parties.buyer;
+    }
+  })();
+
+  return serializeAddressObj(
+    pubKeyAddress(paymentKeyHash),
+    args.networkId ?? 0,
+  );
+}
+
+function outputReferenceData(input: UTxO["input"]): Data {
+  return {
+    alternative: 0,
+    fields: [input.txHash, input.outputIndex],
+  };
 }

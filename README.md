@@ -58,6 +58,7 @@ Edit `.env`:
 NETWORK_ID=0
 BLOCKFROST_PROJECT_ID=preprodYourBlockfrostProjectIdHere
 LOCK_LOVELACE=5000000
+ESCROW_ID="demo-escrow-001"
 
 BUYER_MNEMONIC="replace with a 24 word test wallet mnemonic"
 SELLER_MNEMONIC="replace with a 24 word test wallet mnemonic"
@@ -65,6 +66,11 @@ ARBITER_MNEMONIC="replace with a 24 word test wallet mnemonic"
 ```
 
 `NETWORK_ID=0` is for testnets. Keep `.env` private.
+
+`ESCROW_ID` identifies the escrow being locked or redeemed. Use a different
+value for each operation and keep the same value when running `escrow:lock` and
+the corresponding redemption command. Do not reuse an identifier while the
+previous escrow is still active.
 
 ### 3. Generate Test Wallet Mnemonics
 

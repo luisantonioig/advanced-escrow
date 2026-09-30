@@ -74,6 +74,7 @@ async function main() {
     buyer: await walletPaymentKeyHash(wallets.buyer),
     seller: await walletPaymentKeyHash(wallets.seller),
     arbiter: await walletPaymentKeyHash(wallets.arbiter),
+    escrowId: requiredEnv("ESCROW_ID"),
   };
 
   if (command === "lock") {
@@ -96,8 +97,6 @@ async function main() {
       provider,
       parties,
       action: actionName[command],
-      buyerAddress: await wallets.buyer.getChangeAddress(),
-      sellerAddress: await wallets.seller.getChangeAddress(),
       networkId,
     });
 
