@@ -12,8 +12,10 @@
     "build": "npm run aiken:build --silent && npm run build:ts --silent",
     "build:ts": "tsc",
     "check": "npm run aiken:check --silent && npm run typecheck --silent",
+    "test": "npm run test:integration",
+    "test:integration": "tsx --test tests/integration/**/*.test.ts",
     "cli": "npm run build --silent && node --enable-source-maps dist/onchain.js",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json",
     "wallet:generate": "npm run cli -- generate-wallet",
     "wallet:addresses": "npm run cli -- addresses",
     "wallet:balance": "npm run cli -- balance",
@@ -33,6 +35,8 @@
     "dotenv": "^16.4.7"
   },
   "devDependencies": {
+    "@meshsdk/scalus-emulator": "^1.9.1",
+    "tsx": "^4.23.15",
     "typescript": "^5.8.3"
   }
 }

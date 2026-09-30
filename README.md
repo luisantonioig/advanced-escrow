@@ -36,7 +36,31 @@ npm ci
 ```sh
 npm run check
 npm run build
+npm test
 ```
+
+`npm test` runs seven integration tests locally with the Mesh `ScalusEmulator`.
+The suite creates deterministic wallets and funded UTxOs in memory, then runs
+the real Mesh transaction flow against the compiled Plutus validator. It covers
+all four actions (`Release`, `Refund`, `ResolveBuyer`, and `ResolveSeller`) and
+also verifies wrong signers, unknown escrow IDs, and ambiguous escrow state.
+It does not need Blockfrost, Docker, faucet funds, or a testnet.
+
+The emulator is intentionally the default test layer because it is fast enough
+for every commit and CI run. It validates ledger rules and Plutus scripts, but
+it is not a Cardano node and does not reproduce network confirmation timing.
+
+For provider/API and frontend development, use a separate local Yaci DevKit
+devnet. Yaci provides a local node with an indexer and a Blockfrost-compatible
+API. Start it independently with:
+
+```sh
+yaci-devkit up --enable-yaci-store
+```
+
+Then configure the application provider for `http://localhost:8080/api/v1/`.
+This second layer is intentionally not part of `npm test`, so ordinary CI does
+not require Docker or a long-running local chain.
 
 ## On-Chain Testnet Setup
 

@@ -15,9 +15,9 @@ import blueprint from "../plutus.json" with { type: "json" };
 
 type NetworkId = 0 | 1;
 
-type EscrowAction = "Release" | "Refund" | "ResolveBuyer" | "ResolveSeller";
+export type EscrowAction = "Release" | "Refund" | "ResolveBuyer" | "ResolveSeller";
 
-type EscrowParties = {
+export type EscrowParties = {
   buyer: string;
   seller: string;
   arbiter: string;
@@ -33,7 +33,7 @@ export type EscrowWallet = {
   submitTx(tx: string): Promise<string>;
 };
 
-type RedeemEscrowArgs = {
+export type RedeemEscrowArgs = {
   wallet: EscrowWallet;
   provider: IFetcher;
   parties: EscrowParties;
